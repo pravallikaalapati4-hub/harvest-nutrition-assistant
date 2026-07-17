@@ -571,17 +571,7 @@
 </div>
 
 <script>
-(function(){
-  // ---------- Backend connection ----------
-  // Update this if the API is deployed somewhere other than a local dev server.
- const API_BASE = 'https://nutrition-assistant-2-nlqb.onrender.com/api';
-  document.getElementById('apiBaseLabel').textContent = API_BASE;
-
-  let authToken = localStorage.getItem('harvest_token') || null;
-  let currentUser = null;
-  let currentClient = null;
-  let currentMealPlan = null;
-  let syncTimer = null;
+C
 
   async function apiFetch(path, options={}){
     const headers = { 'Content-Type': 'application/json', ...(options.headers||{}) };
