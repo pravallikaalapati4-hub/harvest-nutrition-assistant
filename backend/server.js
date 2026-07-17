@@ -20,15 +20,36 @@ connectDB();
 
 const app = express();
 
-// Security & core middleware
+// Security middleware
 app.use(helmet());
+
+// ================= CORS CONFIGURATION =================
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'https://pravallikaalapati4-hub.github.io',
+  'https://pravallikaalapati4-hub.github.io/nutrition-assistant-',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+];
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || '*',
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
+
+// ======================================================
 
 app.use(compression());
 app.use(express.json({ limit: '1mb' }));
@@ -38,7 +59,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Rate limiter for authentication routes
+// Rate limiter
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
@@ -60,7 +81,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health Check Route
+// Health Check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -68,17 +89,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/mealplans', mealPlanRoutes);
 app.use('/api/progress', progressRoutes);
 
-// 404 Route
+// 404
 app.use(notFound);
 
-// Error Handler
+// Error handler
 app.use(errorHandler);
 
 // Start Server
